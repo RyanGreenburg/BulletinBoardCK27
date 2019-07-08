@@ -18,14 +18,26 @@ class MessageViewController: UIViewController {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
+        NotificationCenter.default.addObserver(self, selector: #selector(updateViews), name: MessageController.shared.messagesWereUpdatedNotification, object: nil)
         
         MessageController.shared.fetchMessageRecords()
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        NotificationCenter.default.removeObserver(self, name: MessageController.shared.messagesWereUpdatedNotification, object: nil)
+    }
+    
+    @objc func updateViews() {
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+    }
+    
     @IBAction func addButtonTapped(_ sender: Any) {
         guard let messageText = textField.text, messageText != "" else { return }
-        
         MessageController.shared.saveMessageRecord(messageText)
+        textField.text = ""
     }
     
 }

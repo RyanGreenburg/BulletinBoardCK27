@@ -47,3 +47,9 @@ class Message {
         self.timestamp = timestamp
     }
 }
+
+extension Message: Equatable {
+    static func == (lhs: Message, rhs: Message) -> Bool {
+        return lhs.text == rhs.text && lhs.timestamp == rhs.timestamp
+    }
+}

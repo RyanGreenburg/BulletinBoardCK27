@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CloudKit
 
 class MessageController {
     // Shared instance
@@ -27,10 +28,11 @@ class MessageController {
     func saveMessageRecord(_ text: String) {
         // init a message
         let messageToSave = Message(text: text)
+        let record = CKRecord(message: messageToSave)
         // set database
         let database = CloudKitController.shared.publicDatabase
         
-        CloudKitController.shared.saveRecordToCloudKit(record: messageToSave.cloudKitRecord, database: database) { (success) in
+        CloudKitController.shared.saveRecordToCloudKit(record: record, database: database) { (success) in
             if success {
                 print("WE DID IT")
                 self.messages.append(messageToSave)
@@ -42,7 +44,7 @@ class MessageController {
     func fetchMessageRecords() {
         
         let database = CloudKitController.shared.publicDatabase
-        CloudKitController.shared.fetchRecordsOf(type: Message.typeKey, database: database) { (records, error) in
+        CloudKitController.shared.fetchRecordsOf(type: MessageConstants.typeKey, database: database) { (records, error) in
             
             // Handle error
             if let error = error {
@@ -57,6 +59,18 @@ class MessageController {
             
             // Set source of truth
             self.messages = messages
+        }
+    }
+    
+    func delete(_ message: Message) {
+        let db = CloudKitController.shared.publicDatabase
+        let recordID = message.recordID
+        
+        CloudKitController.shared.delete(recordID: recordID, database: db) { (success) in
+            if success {
+                guard let index = self.messages.firstIndex(of: message) else { return }
+                self.messages.remove(at: index)
+            }
         }
     }
 }

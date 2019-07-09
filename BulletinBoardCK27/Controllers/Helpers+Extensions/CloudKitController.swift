@@ -47,4 +47,14 @@ class CloudKitController {
             }
         }
     }
+    
+    func delete(recordID: CKRecord.ID, database: CKDatabase, completion: @escaping (Bool) -> Void) {
+        database.delete(withRecordID: recordID) { (_, error) in
+            if let error = error {
+                print("Error in \(#function) : \(error.localizedDescription) /n---/n \(error)")
+                completion(false)
+            }
+            completion(true)
+        }
+    }
 }
